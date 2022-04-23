@@ -1,0 +1,36 @@
+﻿<Window x:Class="MiniRadiant.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MiniRadiant"
+        mc:Ignorable="d"
+        Title="MiniRadiant" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+            <TabControl>
+                <TabItem Header="Colors">
+                    <ListView x:Name="colorsList">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <WrapPanel>
+                                    <TextBlock>{ColorValues}</TextBlock>
+                                </WrapPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </TabItem>
+            </TabControl>
+            
+            
+        </StackPanel>
+        <StackPanel Grid.Column="1">
+            <Button x:Name="loadMapBtn" Click="loadMapBtn_Click">Load map</Button>
+            <Button x:Name="saveMapBtn" Click="saveMapBtn_Click">Save processed map</Button>
+        </StackPanel>
+    </Grid>
+</Window>

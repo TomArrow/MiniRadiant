@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniRadiant", "MiniRadiant\MiniRadiant.csproj", "{4495E0E1-C7A4-485C-8436-C19F65DAA4FE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4495E0E1-C7A4-485C-8436-C19F65DAA4FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4495E0E1-C7A4-485C-8436-C19F65DAA4FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4495E0E1-C7A4-485C-8436-C19F65DAA4FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4495E0E1-C7A4-485C-8436-C19F65DAA4FE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7BC1B52D-6161-4918-A445-DBA77F89A5FB}
+	EndGlobalSection
+EndGlobal
