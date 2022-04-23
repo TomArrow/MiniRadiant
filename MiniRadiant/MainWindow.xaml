@@ -11,15 +11,43 @@
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition Width="200"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
-            <TabControl>
+        <DockPanel Grid.Column="0">
+            <TabControl DockPanel.Dock="Top">
                 <TabItem Header="Colors">
-                    <ListView x:Name="colorsList">
+                    <ListView x:Name="colorsList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <WrapPanel>
-                                    <TextBlock>{ColorValues}</TextBlock>
-                                </WrapPanel>
+                                <Grid Width="500">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50"></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
+
+                                    <Rectangle Grid.RowSpan="2" Grid.Column="0" Width="50" Height="50" Fill="{Binding WPFColor,Mode=OneWay}"></Rectangle>
+                                    <TextBox MinWidth="50" Grid.Column="1" IsReadOnly="True" Text="{Binding ColorValues,Mode=OneWay}"></TextBox>
+                                    <WrapPanel Grid.Column="1" Grid.Row="1" >
+                                        <Label>Use count: </Label>
+                                        <TextBox MinWidth="50" IsReadOnly="True" Text="{Binding Count}"></TextBox>
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Column="2" Grid.Row="0" >
+                                        <Label>Set deviance: </Label>
+                                        <TextBox MinWidth="50" Text="{Binding Deviance}"></TextBox>
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Column="2" Grid.Row="1" >
+                                        <Label>Set samples: </Label>
+                                        <TextBox MinWidth="50" Text="{Binding Samples}"></TextBox>
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Column="3" Grid.Row="0" >
+                                        <Label>Modify intensity: </Label>
+                                        <TextBox MinWidth="50" Text="{Binding Intensity}"></TextBox>
+                                    </WrapPanel>
+                                </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
@@ -27,7 +55,7 @@
             </TabControl>
             
             
-        </StackPanel>
+        </DockPanel>
         <StackPanel Grid.Column="1">
             <Button x:Name="loadMapBtn" Click="loadMapBtn_Click">Load map</Button>
             <Button x:Name="saveMapBtn" Click="saveMapBtn_Click">Save processed map</Button>
