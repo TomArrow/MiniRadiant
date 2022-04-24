@@ -14,7 +14,7 @@
         <DockPanel Grid.Column="0">
             <TabControl DockPanel.Dock="Top">
                 <TabItem Header="Colors">
-                    <ListView x:Name="colorsList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListView x:Name="colorsList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid Width="500">
@@ -47,6 +47,9 @@
                                         <Label>Modify intensity: </Label>
                                         <TextBox MinWidth="50" Text="{Binding Intensity}"></TextBox>
                                     </WrapPanel>
+                                    <WrapPanel Grid.Column="3" Grid.Row="1" >
+                                        <CheckBox IsChecked="{Binding OverrideDevianceSamples}">Override deviance/samples</CheckBox>
+                                    </WrapPanel>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -59,6 +62,13 @@
         <StackPanel Grid.Column="1">
             <Button x:Name="loadMapBtn" Click="loadMapBtn_Click">Load map</Button>
             <Button x:Name="saveMapBtn" Click="saveMapBtn_Click">Save processed map</Button>
+            <DockPanel MinHeight="200" x:Name="miniMapContainer" LastChildFill="True">
+                <Image x:Name="miniMap" Stretch="Fill" DockPanel.Dock="Left" VerticalAlignment="Center"></Image>
+            </DockPanel>
+            <CheckBox x:Name="drawAllLightsCheck" IsChecked="True" Click="drawAllLightsCheck_Click">Draw all lights</CheckBox>
+            <CheckBox x:Name="linearFalloffCheck" IsChecked="False" Click="linearFalloffCheck_Click">Linear Falloff</CheckBox>
+            <CheckBox x:Name="saturatedClipCheck" IsChecked="True" Click="saturatedClipCheck_Click">Saturated Clipping</CheckBox>
+            <Slider x:Name="exposureSlider" Minimum="-10" Maximum="10" Value="0" IsSnapToTickEnabled="True" TickFrequency="1" TickPlacement="Both" ValueChanged="exposureSlider_ValueChanged"></Slider>
         </StackPanel>
     </Grid>
 </Window>
