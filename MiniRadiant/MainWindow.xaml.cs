@@ -130,58 +130,63 @@ namespace MiniRadiant
 
                     if(entity.ContainsKey("classname") && entity["classname"] == "light")
                     {
+                        Vector3? parsedColor;
                         if (entity.ContainsKey("_color"))
                         {
+                            parsedColor = parseVector3(entity["_color"]);
+                        } else
+                        {
+                            parsedColor = new Vector3() { X = 1.0f, Y = 1.0f, Z = 1.0f };
+                        }
 
-                            Vector3? parsedColor = parseVector3(entity["_color"]);
-                            if (!parsedColor.HasValue)
-                            {
-                                Trace.WriteLine("Color parsing failed, skipping light.");
-                                continue;
-                            }
-                            Vector3? parsedOrigin = parseVector3(entity["origin"]);
-                            if (!parsedOrigin.HasValue)
-                            {
-                                Trace.WriteLine("Origin parsing failed, light won't be visible in preview.");
-                            } else
-                            {
-                                float x = parsedOrigin.Value.X;
-                                float y = parsedOrigin.Value.Y;
-                                mapBounds[0].X = Math.Min(mapBounds[0].X,x);
-                                mapBounds[0].Y = Math.Min(mapBounds[0].Y,y);
-                                mapBounds[1].X = Math.Max(mapBounds[1].X,x);
-                                mapBounds[1].Y = Math.Min(mapBounds[1].Y,y);
-                                mapBounds[2].X = Math.Max(mapBounds[2].X,x);
-                                mapBounds[2].Y = Math.Max(mapBounds[2].Y,y);
-                                mapBounds[3].X = Math.Min(mapBounds[3].X,x);
-                                mapBounds[3].Y = Math.Max(mapBounds[3].Y,y);
-                            }
+                        if (!parsedColor.HasValue)
+                        {
+                            Trace.WriteLine("Color parsing failed, skipping light.");
+                            continue;
+                        }
+                        Vector3? parsedOrigin = parseVector3(entity["origin"]);
+                        if (!parsedOrigin.HasValue)
+                        {
+                            Trace.WriteLine("Origin parsing failed, light won't be visible in preview.");
+                        } else
+                        {
+                            float x = parsedOrigin.Value.X;
+                            float y = parsedOrigin.Value.Y;
+                            mapBounds[0].X = Math.Min(mapBounds[0].X,x);
+                            mapBounds[0].Y = Math.Min(mapBounds[0].Y,y);
+                            mapBounds[1].X = Math.Max(mapBounds[1].X,x);
+                            mapBounds[1].Y = Math.Min(mapBounds[1].Y,y);
+                            mapBounds[2].X = Math.Max(mapBounds[2].X,x);
+                            mapBounds[2].Y = Math.Max(mapBounds[2].Y,y);
+                            mapBounds[3].X = Math.Min(mapBounds[3].X,x);
+                            mapBounds[3].Y = Math.Max(mapBounds[3].Y,y);
+                        }
 
 
-                            if (lightColors.ContainsKey(parsedColor.Value)){
-                                lightColors[parsedColor.Value].Count++;
-                            }
-                            else
+                        if (lightColors.ContainsKey(parsedColor.Value)){
+                            lightColors[parsedColor.Value].Count++;
+                        }
+                        else
+                        {
+                            lightColors.Add(parsedColor.Value, new LightColor() { Count = 1, color = parsedColor.Value });
+                        }
+                        if (parsedOrigin.HasValue)
+                        {
+                            float baseIntensity = 1.0f;
+                            foreach(string eKey in new string[] { "light", "_light", "scale" })
                             {
-                                lightColors.Add(parsedColor.Value, new LightColor() { Count = 1, color = parsedColor.Value });
-                            }
-                            if (parsedOrigin.HasValue)
-                            {
-                                float baseIntensity = 1.0f;
-                                foreach(string eKey in new string[] { "light", "_light", "scale" })
+                                if (entity.ContainsKey(eKey))
                                 {
-                                    if (entity.ContainsKey(eKey))
+                                    float oldScale = 1.0f;
+                                    if(float.TryParse(entity[eKey], out oldScale))
                                     {
-                                        float oldScale = 1.0f;
-                                        if(float.TryParse(entity[eKey], out oldScale))
-                                        {
-                                            baseIntensity *= oldScale;
-                                        }
+                                        baseIntensity *= oldScale;
                                     }
                                 }
-                                lightColors[parsedColor.Value].lights.Add(new LightEntity() { baseIntensity= baseIntensity, position = parsedOrigin.Value});
                             }
+                            lightColors[parsedColor.Value].lights.Add(new LightEntity() { baseIntensity= baseIntensity, position = parsedOrigin.Value});
                         }
+                        
                     }
                 }
                 i++;
@@ -204,67 +209,72 @@ namespace MiniRadiant
 
                     if (entity.ContainsKey("classname") && entity["classname"] == "light")
                     {
+                        Vector3? parsedColor;
                         if (entity.ContainsKey("_color"))
                         {
-
-                            Vector3? parsedColor = parseVector3(entity["_color"]);
+                            parsedColor = parseVector3(entity["_color"]);
                             if (!parsedColor.HasValue)
                             {
                                 return match.Value;
                             }
+                        }
+                        else
+                        {
+                            parsedColor = new Vector3() { X = 1.0f, Y = 1.0f, Z = 1.0f };
+                        }
 
-                            // check if some changes need to be done.
-                            bool changesDone = false;
-                            if (lightColors.ContainsKey(parsedColor.Value))
+                        // check if some changes need to be done.
+                        bool changesDone = false;
+                        if (lightColors.ContainsKey(parsedColor.Value))
+                        {
+                            LightColor lc = lightColors[parsedColor.Value];
+                            if(lc.Deviance != 0.0f && (!entity.ContainsKey("_deviance") || lc.OverrideDevianceSamples))
                             {
-                                LightColor lc = lightColors[parsedColor.Value];
-                                if(lc.Deviance != 0.0f && (!entity.ContainsKey("_deviance") || lc.OverrideDevianceSamples))
+                                entity["_deviance"] = lc.Deviance.ToString();
+                                changesDone = true;
+                            }
+                            if(lc.Samples != 1 && (!entity.ContainsKey("_samples") || lc.OverrideDevianceSamples))
+                            {
+                                entity["_samples"] = lc.Samples.ToString();
+                                changesDone = true;
+                            }
+                            if(lc.Intensity != 1.0f)
+                            {
+                                if (entity.ContainsKey("scale"))
                                 {
-                                    entity["_deviance"] = lc.Deviance.ToString();
-                                    changesDone = true;
+                                    float oldScale = 1.0f;
+                                    float.TryParse(entity["scale"], out oldScale);
+                                    entity["scale"] = (oldScale * lc.Intensity).ToString();
                                 }
-                                if(lc.Samples != 1 && (!entity.ContainsKey("_samples") || lc.OverrideDevianceSamples))
+                                else
                                 {
-                                    entity["_samples"] = lc.Samples.ToString();
-                                    changesDone = true;
+                                    entity["scale"] = lc.Intensity.ToString();
                                 }
-                                if(lc.Intensity != 1.0f)
-                                {
-                                    if (entity.ContainsKey("scale"))
-                                    {
-                                        float oldScale = 1.0f;
-                                        float.TryParse(entity["scale"], out oldScale);
-                                        entity["scale"] = (oldScale * lc.Intensity).ToString();
-                                    }
-                                    else
-                                    {
-                                        entity["scale"] = lc.Intensity.ToString();
-                                    }
-                                    changesDone = true;
-                                }
+                                changesDone = true;
+                            }
 
-                                if (changesDone)
+                            if (changesDone)
+                            {
+                                // Rewrite the entity
+                                StringBuilder sb = new StringBuilder();
+                                sb.AppendLine("{");
+                                foreach(KeyValuePair<string,string> kvp in entity)
                                 {
-                                    // Rewrite the entity
-                                    StringBuilder sb = new StringBuilder();
-                                    sb.AppendLine("{");
-                                    foreach(KeyValuePair<string,string> kvp in entity)
-                                    {
-                                        sb.AppendLine($"\"{kvp.Key}\" \"{kvp.Value}\"");
-                                    }
-                                    sb.AppendLine("}");
-                                    return sb.ToString();
-
-                                } else
-                                {
-                                    return match.Value;
+                                    sb.AppendLine($"\"{kvp.Key}\" \"{kvp.Value}\"");
                                 }
+                                sb.AppendLine("}");
+                                return sb.ToString();
 
                             } else
                             {
                                 return match.Value;
                             }
+
+                        } else
+                        {
+                            return match.Value;
                         }
+                        
                     }
                 }
                 return match.Value;
@@ -317,8 +327,48 @@ namespace MiniRadiant
                     while (maxIntensityThisRound > 1.0f)
                     {
                         maxIntensityThisRound = 0.0f;
+                        bool hasComeAround = false;
+                        int x = centerX - distanceFromCenter, y = centerY - distanceFromCenter;
+                        while (!hasComeAround)
+                        {
 
-                        for (int x=centerX- distanceFromCenter; x <= centerX + distanceFromCenter; x++)
+
+                            if (x >= 0 && x < imageWidth && y >= 0 && y < imageHeight)
+                            {
+                                tmp.X = x; tmp.Y = y;
+                                tmp = ((tmp - centralPixel) * invertedScale);
+                                float distanceFactor = linearFalloff ? tmp.Length() : tmp.LengthSquared();
+                                float intensityHere = lightColor.Intensity * exposureMultiplier * 10.0f * 255.0f * light.baseIntensity / distanceFactor; // 100 is magic number.
+                                maxIntensityThisRound = Math.Max(maxIntensityThisRound, intensityHere);
+                                tmp2 = lightColor.color  * intensityHere;
+                                floatImage[y * stride + (imageWidth - x - 1) * 3] = floatImage[y * stride + (imageWidth - x - 1) * 3] + tmp2.Z;
+                                floatImage[y * stride + (imageWidth - x - 1) * 3 + 1] = floatImage[y * stride + (imageWidth - x - 1) * 3 + 1] + tmp2.Y;
+                                floatImage[y * stride + (imageWidth - x - 1) * 3 + 2] = floatImage[y * stride + (imageWidth - x - 1) * 3 + 2] + tmp2.X;
+                            }
+
+                            if (distanceFromCenter == 0) hasComeAround = true;
+
+                            // Draw the square basically
+                            if (y == centerY - distanceFromCenter) // Move right
+                            {
+                                if (x == centerX + distanceFromCenter) y++;
+                                else x++;
+                            }
+                            else if (x == centerX + distanceFromCenter)
+                            {
+                                if (y == centerY + distanceFromCenter) x--;
+                                else y++;
+                            }
+                            else if (y == centerY + distanceFromCenter)
+                            {
+                                if (x == centerX - distanceFromCenter) y--;
+                                else x--;
+                            }
+                            else if (x == centerX - distanceFromCenter) y--;
+
+                            if (y == centerY - distanceFromCenter && x == centerX - distanceFromCenter) hasComeAround = true;
+                        }
+                        /*for (int x=centerX- distanceFromCenter; x <= centerX + distanceFromCenter; x++)
                         {
                             if (x < 0 || x >= imageWidth) continue;
                             for (int y = centerY - distanceFromCenter; y <= centerY + distanceFromCenter; y++)
@@ -337,7 +387,7 @@ namespace MiniRadiant
                                 floatImage[y * stride + (imageWidth - x - 1) * 3+1] = floatImage[y * stride + x * 3 + 1]+tmp2.Y;
                                 floatImage[y * stride + (imageWidth - x - 1) * 3+2] = floatImage[y * stride + x * 3 + 2]+tmp2.X;
                             }
-                        }
+                        }*/
                         distanceFromCenter++;
                     }
                 }
