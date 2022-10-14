@@ -262,7 +262,7 @@ namespace MiniRadiant
                                 {
                                     sb.AppendLine($"\"{kvp.Key}\" \"{kvp.Value}\"");
                                 }
-                                sb.AppendLine("}");
+                                sb.Append("}");
                                 return sb.ToString();
 
                             } else
