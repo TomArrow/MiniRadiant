@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MiniRadiant"
         mc:Ignorable="d"
-        Title="MiniRadiant" Height="450" Width="800">
+        Title="MiniRadiant" Height="450" Width="1200">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -17,19 +17,20 @@
                     <ListView x:Name="colorsList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Width="500">
+                                <Grid Width="800">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="50"></ColumnDefinition>
                                         <ColumnDefinition></ColumnDefinition>
                                         <ColumnDefinition></ColumnDefinition>
                                         <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition Width="200"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition></RowDefinition>
                                         <RowDefinition></RowDefinition>
                                     </Grid.RowDefinitions>
 
-                                    <Rectangle Grid.RowSpan="2" Grid.Column="0" Width="50" Height="50" Fill="{Binding WPFColor,Mode=OneWay}"></Rectangle>
+                                    <Rectangle Grid.RowSpan="2" Grid.Row="0" Grid.Column="0" Width="50" Height="50" Fill="{Binding WPFColor,Mode=OneWay}"></Rectangle>
                                     <TextBox MinWidth="50" Grid.Column="1" IsReadOnly="True" Text="{Binding ColorValues,Mode=OneWay}"></TextBox>
                                     <WrapPanel Grid.Column="1" Grid.Row="1" >
                                         <Label>Use count: </Label>
@@ -50,6 +51,15 @@
                                     <WrapPanel Grid.Column="3" Grid.Row="1" >
                                         <CheckBox IsChecked="{Binding OverrideDevianceSamples}">Override deviance/samples</CheckBox>
                                     </WrapPanel>
+                                    <WrapPanel Grid.Column="4" Grid.Row="0" >
+                                        <Label>New RGB?</Label>
+                                        <TextBox MinWidth="15" Text="{Binding OverrideRed}"></TextBox>
+                                        <TextBox MinWidth="15" Text="{Binding OverrideGreen}"></TextBox>
+                                        <TextBox MinWidth="15" Text="{Binding OverrideBlue}"></TextBox>
+                                    </WrapPanel>
+                                    <WrapPanel Grid.Column="4" Grid.Row="1" >
+                                        <CheckBox IsChecked="{Binding OverrideColor}">Override color</CheckBox>
+                                    </WrapPanel>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -65,6 +75,7 @@
             <DockPanel MinHeight="200" x:Name="miniMapContainer" LastChildFill="True">
                 <Image x:Name="miniMap" Stretch="Fill" DockPanel.Dock="Left" VerticalAlignment="Center"></Image>
             </DockPanel>
+            <Button x:Name="refreshPreviewBtn" Click="refreshPreviewBtn_Click">Refresh preview</Button>
             <CheckBox x:Name="drawAllLightsCheck" IsChecked="True" Click="drawAllLightsCheck_Click">Draw all lights</CheckBox>
             <CheckBox x:Name="linearFalloffCheck" IsChecked="False" Click="linearFalloffCheck_Click">Linear Falloff</CheckBox>
             <CheckBox x:Name="saturatedClipCheck" IsChecked="True" Click="saturatedClipCheck_Click">Saturated Clipping</CheckBox>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -28,8 +29,10 @@ namespace MiniRadiant
         public float baseIntensity;
     }
 
-    class LightColor
+    class LightColor : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public string ColorValues { get {
                 return $"R: {color.X} G: {color.Y} B: {color.Z}";
             } }
@@ -37,7 +40,13 @@ namespace MiniRadiant
         {
             get
             {
-                return new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)(color.X*255.0f), (byte)(color.Y * 255.0f), (byte)(color.Z * 255.0f)));
+                if (OverrideColor)
+                {
+                    return new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)(OverrideRed * 255.0f), (byte)(OverrideGreen * 255.0f), (byte)(OverrideBlue * 255.0f)));
+                } else
+                {
+                    return new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)(color.X * 255.0f), (byte)(color.Y * 255.0f), (byte)(color.Z * 255.0f)));
+                }
             }
         }
         public Vector3 color = new Vector3();
@@ -48,8 +57,34 @@ namespace MiniRadiant
 
         public List<LightEntity> lights = new List<LightEntity>();
 
+        public float OverrideRed { get; set; }
+        public float OverrideGreen { get; set; }
+        public float OverrideBlue { get; set; }
 
+        private bool _overrideColor = false;
+        public bool OverrideColor
+        {
+            get
+            {
+                return _overrideColor;
+            }
+            set
+            {
+                _overrideColor = value;
+                OnPropertyChanged("OverrideColor");
+                OnPropertyChanged("WPFColor");
+            }
+        }
         public bool OverrideDevianceSamples { get; set; } = false;
+
+        private void OnPropertyChanged(string info)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(info));
+            }
+        }
     }
 
 
@@ -228,6 +263,11 @@ namespace MiniRadiant
                         if (lightColors.ContainsKey(parsedColor.Value))
                         {
                             LightColor lc = lightColors[parsedColor.Value];
+                            if (lc.OverrideColor)
+                            {
+                                entity["_color"] = lc.OverrideRed.ToString() + " " + lc.OverrideGreen.ToString() + " " + lc.OverrideBlue.ToString();
+                                changesDone = true;
+                            }
                             if(lc.Deviance != 0.0f && (!entity.ContainsKey("_deviance") || lc.OverrideDevianceSamples))
                             {
                                 entity["_deviance"] = lc.Deviance.ToString();
@@ -340,7 +380,18 @@ namespace MiniRadiant
                                 float distanceFactor = linearFalloff ? tmp.Length() : tmp.LengthSquared();
                                 float intensityHere = lightColor.Intensity * exposureMultiplier * 10.0f * 255.0f * light.baseIntensity / distanceFactor; // 100 is magic number.
                                 maxIntensityThisRound = Math.Max(maxIntensityThisRound, intensityHere);
-                                tmp2 = lightColor.color  * intensityHere;
+
+                                if (lightColor.OverrideColor)
+                                {
+                                    tmp2.X = lightColor.OverrideRed;
+                                    tmp2.Y = lightColor.OverrideGreen;
+                                    tmp2.Z = lightColor.OverrideBlue;
+                                    tmp2 *= intensityHere;
+                                }
+                                else
+                                {
+                                    tmp2 = lightColor.color * intensityHere;
+                                }
                                 floatImage[y * stride + (imageWidth - x - 1) * 3] = floatImage[y * stride + (imageWidth - x - 1) * 3] + tmp2.Z;
                                 floatImage[y * stride + (imageWidth - x - 1) * 3 + 1] = floatImage[y * stride + (imageWidth - x - 1) * 3 + 1] + tmp2.Y;
                                 floatImage[y * stride + (imageWidth - x - 1) * 3 + 2] = floatImage[y * stride + (imageWidth - x - 1) * 3 + 2] + tmp2.X;
@@ -472,6 +523,12 @@ namespace MiniRadiant
         }
 
         private void exposureSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+
+            updatePreview();
+        }
+
+        private void refreshPreviewBtn_Click(object sender, RoutedEventArgs e)
         {
 
             updatePreview();
