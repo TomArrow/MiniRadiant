@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MiniRadiant"
         mc:Ignorable="d"
+        d:DataContext="{StaticResource ResourceKey=ExampleData}"
         Title="MiniRadiant" Height="450" Width="1200">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -14,7 +15,7 @@
         <DockPanel Grid.Column="0">
             <TabControl DockPanel.Dock="Top">
                 <TabItem Header="Colors">
-                    <ListView x:Name="colorsList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged">
+                    <ListView x:Name="colorsList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged" d:ItemsSource="{Binding Path=LightColors}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid Width="800">

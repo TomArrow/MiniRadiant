@@ -23,13 +23,13 @@ using System.Windows.Shapes;
 namespace MiniRadiant
 {
 
-    class LightEntity
+    public class LightEntity
     {
         public Vector3 position;
         public float baseIntensity;
     }
 
-    class LightColor : INotifyPropertyChanged
+    public class LightColor : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
