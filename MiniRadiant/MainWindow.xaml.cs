@@ -23,6 +23,14 @@ using System.Windows.Shapes;
 namespace MiniRadiant
 {
 
+    public class AnglesSettings
+    {
+        public float minAngle { get; set; } = 0;
+        public float maxAngle { get; set; } = 0;
+        public string origTextureName { get; set; } = "";
+        public string replaceTextureName { get; set; } = "";
+    }
+
     public class LightEntity
     {
         public Vector3 position;
@@ -93,10 +101,12 @@ namespace MiniRadiant
     /// </summary>
     public partial class MainWindow : Window
     {
+        private AnglesSettings anglesSettings = new AnglesSettings();
+
         public MainWindow()
         {
             InitializeComponent();
-
+            anglesPanel.DataContext = anglesSettings;
         }
 
         Dictionary<Vector3,LightColor> lightColors = new Dictionary<Vector3, LightColor>();
@@ -111,6 +121,8 @@ namespace MiniRadiant
 
         Regex entitiesParseRegex = new Regex(@"\{(\s*""([^""]+)""[ \t]+""([^""]+)"")+\s*\}",RegexOptions.IgnoreCase|RegexOptions.Compiled);
         Regex emptySpaceRegex = new Regex(@"\s+",RegexOptions.IgnoreCase|RegexOptions.Compiled);
+
+        Regex faceParseRegex = new Regex(@"(?<coordinates>(?<coordvec>\((?<vectorPart>\s*[-\d\.]+){3}\s*\)\s*){3})\(\s*(\((?:\s*[-\d\.]+){3}\s*\)\s*){2}\)\s*(?<texname>[^\s\n]+)\s*(?:\s*[-\d\.]+){3}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private Vector3? parseVector3(string colorString)
         {
@@ -231,7 +243,7 @@ namespace MiniRadiant
         private string filterMapFile()
         {
 
-            return entitiesParseRegex.Replace(mapFileData, (Match match) => {
+            string result = entitiesParseRegex.Replace(mapFileData, (Match match) => {
                 if (match.Groups.Count >= 4)
                 {
                     Dictionary<string, string> entity = new Dictionary<string, string>();
@@ -319,6 +331,41 @@ namespace MiniRadiant
                 }
                 return match.Value;
             });
+            if((anglesSettings.minAngle > 0 || anglesSettings.maxAngle > 0) && !string.IsNullOrEmpty(anglesSettings.origTextureName.Trim()) && !string.IsNullOrEmpty(anglesSettings.replaceTextureName.Trim()))
+            {
+
+                result = faceParseRegex.Replace(result, (Match match) => {
+
+                    if (match.Groups.ContainsKey("texname") && match.Groups["texname"].Captures.Count == 1 && match.Groups["texname"].Value.Trim() == anglesSettings.origTextureName.Trim() )
+                    {
+                        if (match.Groups.ContainsKey("vectorPart") && match.Groups["vectorPart"].Captures.Count == 9)
+                        {
+                            Vector3 point1 = new Vector3() { X = float.Parse(match.Groups["vectorPart"].Captures[0].Value.Trim()), Y = float.Parse(match.Groups["vectorPart"].Captures[1].Value.Trim()), Z = float.Parse(match.Groups["vectorPart"].Captures[2].Value.Trim()) };
+                            Vector3 point2 = new Vector3() { X = float.Parse(match.Groups["vectorPart"].Captures[3].Value.Trim()), Y = float.Parse(match.Groups["vectorPart"].Captures[4].Value.Trim()), Z = float.Parse(match.Groups["vectorPart"].Captures[5].Value.Trim()) };
+                            Vector3 point3 = new Vector3() { X = float.Parse(match.Groups["vectorPart"].Captures[6].Value.Trim()), Y = float.Parse(match.Groups["vectorPart"].Captures[7].Value.Trim()), Z = float.Parse(match.Groups["vectorPart"].Captures[8].Value.Trim()) };
+
+                            Vector3 side1 = point3 - point2;
+                            Vector3 side2 = point3 - point1;
+
+                            Vector3 normal = Vector3.Cross(side1, side2);
+                            normal = Vector3.Normalize(normal);
+                            float angle = 360.0f * (float)Math.Acos(normal.Z) / (float)Math.PI / 2.0f;
+                            if (
+                                (anglesSettings.minAngle != 0 && anglesSettings.maxAngle != 0 && angle > anglesSettings.minAngle && angle < anglesSettings.maxAngle) // Both conditions must be met
+                                || (anglesSettings.minAngle != 0 && 0 == anglesSettings.maxAngle && angle > anglesSettings.minAngle)
+                                || (anglesSettings.maxAngle != 0 && 0 == anglesSettings.minAngle && angle < anglesSettings.maxAngle)
+                                )
+                            {
+                                return match.Value.Replace(anglesSettings.origTextureName.Trim(), anglesSettings.replaceTextureName.Trim());
+                            }
+
+                        }
+                    }
+                    
+                    return match.Value;
+                });
+            }
+            return result;
         }
 
 

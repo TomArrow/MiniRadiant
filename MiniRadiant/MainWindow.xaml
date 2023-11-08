@@ -66,6 +66,20 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </TabItem>
+                <TabItem Header="Angles">
+                    <StackPanel x:Name="anglesPanel">
+                        <Label>Replace the following shader/texture:</Label>
+                        <TextBox Text="{Binding origTextureName}"></TextBox>
+                        <Label>with the following shader/texture:</Label>
+                        <TextBox Text="{Binding replaceTextureName}"></TextBox>
+                        
+                        <Label>if the surface angle is above</Label>
+                        <TextBox Text="{Binding minAngle}"></TextBox>
+                        <Label>and below</Label>
+                        <TextBox Text="{Binding maxAngle}"></TextBox>
+                        
+                    </StackPanel>
+                </TabItem>
             </TabControl>
             
             
