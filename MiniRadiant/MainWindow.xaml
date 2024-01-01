@@ -80,6 +80,43 @@
                         
                     </StackPanel>
                 </TabItem>
+                <TabItem Header="Triggers">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top">
+                            <Label>Elements to move to the end:</Label>
+                            <ListView DockPanel.Dock="Bottom" x:Name="endMoveList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged" ItemsSource="{Binding triggerTypes}" d:ItemsSource="{Binding triggerTypes}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding moveToEnd,Mode=TwoWay}" Content="{Binding name}"></CheckBox>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel></WrapPanel>
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                            </ListView>
+                            <Label>Elements to merge:</Label>
+                        </StackPanel>
+                        <ListView DockPanel.Dock="Bottom" x:Name="triggersList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged" d:ItemsSource="{Binding Path=EntityGroups}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="50"></ColumnDefinition>
+                                            <ColumnDefinition Width="50"></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" IsChecked="{Binding merge}"></CheckBox>
+                                        <Label Grid.Column="1" Content="{Binding brushTexts.Count}"></Label>
+                                        <TextBlock Grid.Column="2" Text="{Binding props.String}" FontFamily="Courier New"></TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </DockPanel>
+                    
+                </TabItem>
             </TabControl>
             
             

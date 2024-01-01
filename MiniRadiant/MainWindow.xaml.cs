@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -36,6 +37,9 @@ namespace MiniRadiant
         public Vector3 position;
         public float baseIntensity;
     }
+
+
+
 
     public class LightColor : INotifyPropertyChanged
     {
@@ -103,9 +107,18 @@ namespace MiniRadiant
     {
         private AnglesSettings anglesSettings = new AnglesSettings();
 
+        public ObservableCollection<TriggerType> triggerTypes { get; set; } = new ObservableCollection<TriggerType>() {
+            new TriggerType { moveToEnd=false, name="df_trigger_start" },
+            new TriggerType { moveToEnd=false, name="df_trigger_finish" },
+            new TriggerType { moveToEnd=false, name="df_trigger_checkpoint" },
+            new TriggerType { moveToEnd=false, name="trigger_multiple" },
+            new TriggerType { moveToEnd=false, name="trigger_hurt" },
+        };
+
         public MainWindow()
         {
             InitializeComponent();
+            endMoveList.DataContext = this;
             anglesPanel.DataContext = anglesSettings;
         }
 
@@ -122,7 +135,8 @@ namespace MiniRadiant
         Regex entitiesParseRegex = new Regex(@"\{(\s*""([^""]+)""[ \t]+""([^""]+)"")+\s*\}",RegexOptions.IgnoreCase|RegexOptions.Compiled);
         Regex emptySpaceRegex = new Regex(@"\s+",RegexOptions.IgnoreCase|RegexOptions.Compiled);
 
-        Regex faceParseRegex = new Regex(@"(?<coordinates>(?<coordvec>\((?<vectorPart>\s*[-\d\.]+){3}\s*\)\s*){3})\(\s*(\((?:\s*[-\d\.]+){3}\s*\)\s*){2}\)\s*(?<texname>[^\s\n]+)\s*(?:\s*[-\d\.]+){3}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        //Regex faceParseRegex = new Regex(@"(?<coordinates>(?<coordvec>\((?<vectorPart>\s*[-\d\.]+){3}\s*\)\s*){3})\(\s*(\((?:\s*[-\d\.]+){3}\s*\)\s*){2}\)\s*(?<texname>[^\s\n]+)\s*(?:\s*[-\d\.]+){3}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        Regex faceParseRegex = new Regex(@"(?<coordinates>(?<coordvec>\((?<vectorPart>\s*[-\d\.]+){3}\s*\)\s*){3})(?:\(\s*(\((?:\s*[-\d\.]+){3}\s*\)\s*){2}\))?\s*(?<texname>[^\s\n]+)\s*(?:\s*[-\d\.]+){3}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private Vector3? parseVector3(string colorString)
         {
@@ -243,7 +257,8 @@ namespace MiniRadiant
         private string filterMapFile()
         {
 
-            string result = entitiesParseRegex.Replace(mapFileData, (Match match) => {
+            string result = ProcessTriggerChanges(mapFileData);
+            result = entitiesParseRegex.Replace(result, (Match match) => {
                 if (match.Groups.Count >= 4)
                 {
                     Dictionary<string, string> entity = new Dictionary<string, string>();
@@ -532,6 +547,7 @@ namespace MiniRadiant
                 parseMapLights();
                 updateList();
                 updatePreview();
+                ParseEntities();
             }
         }
 
