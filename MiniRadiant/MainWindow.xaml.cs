@@ -115,11 +115,14 @@ namespace MiniRadiant
             new TriggerType { moveToEnd=false, name="trigger_hurt" },
         };
 
+        public bool sortDefragCourses { get; set; } = false;
+
         public MainWindow()
         {
             InitializeComponent();
             endMoveList.DataContext = this;
             anglesPanel.DataContext = anglesSettings;
+            defragCourseSortCheck.DataContext = this;
         }
 
         Dictionary<Vector3,LightColor> lightColors = new Dictionary<Vector3, LightColor>();

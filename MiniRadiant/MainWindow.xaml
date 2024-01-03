@@ -83,6 +83,7 @@
                 <TabItem Header="Triggers">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Top">
+                            <CheckBox IsChecked="{Binding sortDefragCourses}" x:Name="defragCourseSortCheck">Sort defrag course end triggers by name</CheckBox>
                             <Label>Elements to move to the end:</Label>
                             <ListView DockPanel.Dock="Bottom" x:Name="endMoveList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged" ItemsSource="{Binding triggerTypes}" d:ItemsSource="{Binding triggerTypes}">
                                 <ListView.ItemTemplate>

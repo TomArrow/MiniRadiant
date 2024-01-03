@@ -177,6 +177,8 @@ namespace MiniRadiant
         private string ProcessTriggerChanges(string mapText)
         {
 
+            SortedDictionary<string,string> defragCourseDataForSorting = new SortedDictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+
             Dictionary<EntityGroup, EntityGroupProcessingData> procData = new Dictionary<EntityGroup, EntityGroupProcessingData>();
 
             StringBuilder endMapSB = new StringBuilder();
@@ -233,13 +235,21 @@ namespace MiniRadiant
                             retVal= sb.ToString();
                         }
                     }
-                    // Put at end?
-                    foreach(TriggerType triggerType in triggerTypes)
+                    if (sortDefragCourses && props["classname"].Equals("df_trigger_finish", StringComparison.InvariantCultureIgnoreCase) && props.ContainsKey("message"))
                     {
-                        if (triggerType.name.Equals(props["classname"], StringComparison.InvariantCultureIgnoreCase) && triggerType.moveToEnd)
+                        defragCourseDataForSorting[props["message"]] = retVal;
+                        retVal = "";
+                    } else
+                    {
+                        // Put at end?
+                        foreach (TriggerType triggerType in triggerTypes)
                         {
-                            endMapSB.Append($"\n{retVal}\n");
-                            retVal = "";
+                            if (triggerType.name.Equals(props["classname"], StringComparison.InvariantCultureIgnoreCase) && triggerType.moveToEnd)
+                            {
+                                endMapSB.Append($"\n{retVal}\n");
+                                retVal = "";
+                                break;
+                            }
                         }
                     }
                     return retVal;
@@ -248,6 +258,14 @@ namespace MiniRadiant
 
                 return entityMatch.Value;
             });
+
+            if(defragCourseDataForSorting.Count > 0)
+            {
+                foreach(var item in defragCourseDataForSorting)
+                {
+                    endMapSB.Append($"\n{item.Value}\n");
+                }
+            }
 
             if(endMapSB.Length > 0)
             {
