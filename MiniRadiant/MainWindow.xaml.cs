@@ -116,6 +116,7 @@ namespace MiniRadiant
         };
 
         public bool sortDefragCourses { get; set; } = false;
+        public bool defragFinishTriggerLast { get; set; } = false;
 
         public MainWindow()
         {
@@ -552,6 +553,17 @@ namespace MiniRadiant
                 updatePreview();
                 ParseEntities();
             }
+        }
+        private void setTrueForAllTelesBtn_Click(object sender, RoutedEventArgs e)
+        {
+            foreach(EntityGroup grp in entityGroups)
+            {
+                if (grp.brushTexts.Count > 1 && grp.props["classname"].Equals("trigger_teleport",StringComparison.InvariantCultureIgnoreCase))
+                {
+                    grp.merge = true;
+                }
+            }
+                
         }
 
         private void saveMapBtn_Click(object sender, RoutedEventArgs e)

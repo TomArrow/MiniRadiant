@@ -84,6 +84,7 @@
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Top">
                             <CheckBox IsChecked="{Binding sortDefragCourses}" x:Name="defragCourseSortCheck">Sort defrag course end triggers by name</CheckBox>
+                            <CheckBox IsChecked="{Binding defragFinishTriggerLast}" x:Name="defragFinishTriggerLastCheck">Put defrag finish triggers at end</CheckBox>
                             <Label>Elements to move to the end:</Label>
                             <ListView DockPanel.Dock="Bottom" x:Name="endMoveList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged" ItemsSource="{Binding triggerTypes}" d:ItemsSource="{Binding triggerTypes}">
                                 <ListView.ItemTemplate>
@@ -98,6 +99,7 @@
                                 </ListView.ItemsPanel>
                             </ListView>
                             <Label>Elements to merge:</Label>
+                            <Button x:Name="setTrueForAllTelesBtn" Click="setTrueForAllTelesBtn_Click">Set true for all teleports</Button>
                         </StackPanel>
                         <ListView DockPanel.Dock="Bottom" x:Name="triggersList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged" d:ItemsSource="{Binding Path=EntityGroups}">
                             <ListView.ItemTemplate>

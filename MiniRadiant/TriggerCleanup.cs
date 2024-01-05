@@ -182,6 +182,7 @@ namespace MiniRadiant
             Dictionary<EntityGroup, EntityGroupProcessingData> procData = new Dictionary<EntityGroup, EntityGroupProcessingData>();
 
             StringBuilder endMapSB = new StringBuilder();
+            StringBuilder afterEndMapSB = new StringBuilder();
 
             mapText = PcreRegex.Replace(mapText,triggersMatchRegex,(entityMatch) => {
 
@@ -239,8 +240,15 @@ namespace MiniRadiant
                     {
                         defragCourseDataForSorting[props["message"]] = retVal;
                         retVal = "";
-                    } else
+                    }
+                    else if (defragFinishTriggerLast && props["classname"].Equals("df_trigger_finish", StringComparison.InvariantCultureIgnoreCase))
                     {
+                        afterEndMapSB.Append($"\n{retVal}\n");
+                        retVal = "";
+                    }
+                    else 
+                    {
+
                         // Put at end?
                         foreach (TriggerType triggerType in triggerTypes)
                         {
@@ -263,13 +271,19 @@ namespace MiniRadiant
             {
                 foreach(var item in defragCourseDataForSorting)
                 {
-                    endMapSB.Append($"\n{item.Value}\n");
+                    if (defragFinishTriggerLast)
+                    {
+                        afterEndMapSB.Append($"\n{item.Value}\n");
+                    } else
+                    {
+                        endMapSB.Append($"\n{item.Value}\n");
+                    }
                 }
             }
 
-            if(endMapSB.Length > 0)
+            if(endMapSB.Length > 0 || afterEndMapSB.Length > 0)
             {
-                return $"{mapText}{endMapSB.ToString()}";
+                return $"{mapText}{endMapSB.ToString()}{afterEndMapSB.ToString()}";
             } else
             {
                 return mapText;
