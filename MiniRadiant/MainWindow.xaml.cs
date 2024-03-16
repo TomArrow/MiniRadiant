@@ -565,6 +565,28 @@ namespace MiniRadiant
             }
                 
         }
+        private void setTrueForAllTriggerMultipleWithMultipleBtn_Click(object sender, RoutedEventArgs e)
+        {
+            foreach(EntityGroup grp in entityGroups)
+            {
+                if (grp.brushTexts.Count > 1 && grp.props["classname"].Equals("trigger_multiple",StringComparison.InvariantCultureIgnoreCase) && grp.props.ContainsKey("spawnflags") && 0 < (int.Parse(grp.props["spawnflags"]) & 256))
+                {
+                    grp.merge = true;
+                }
+            }
+                
+        }
+        private void setTrueForAllCheckpointBtn_Click(object sender, RoutedEventArgs e)
+        {
+            foreach(EntityGroup grp in entityGroups)
+            {
+                if (grp.brushTexts.Count > 1 && grp.props["classname"].Equals("df_trigger_checkpoint",StringComparison.InvariantCultureIgnoreCase))
+                {
+                    grp.merge = true;
+                }
+            }
+                
+        }
 
         private void saveMapBtn_Click(object sender, RoutedEventArgs e)
         {

@@ -100,8 +100,23 @@
                             </ListView>
                             <Label>Elements to merge:</Label>
                             <Button x:Name="setTrueForAllTelesBtn" Click="setTrueForAllTelesBtn_Click">Set true for all teleports</Button>
+                            <Button x:Name="setTrueForAllTriggerMultipleWithMultipleBtn" Click="setTrueForAllTriggerMultipleWithMultipleBtn_Click">Set true for all trigger_multiple with MULTIPLE spawnflag</Button>
+                            <Button x:Name="setTrueForAllCheckpointBtn" Click="setTrueForAllCheckpointBtn_Click">Set true for all df_trigger_checkpoint</Button>
                         </StackPanel>
                         <ListView DockPanel.Dock="Bottom" x:Name="triggersList" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" SelectionChanged="colorsList_SelectionChanged" d:ItemsSource="{Binding Path=EntityGroups}">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Style.Triggers>
+
+                                        <DataTrigger Binding="{Binding moreThanOne}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding moreThanOne}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>

@@ -103,11 +103,14 @@ namespace MiniRadiant
         }
     }
 
-    public class EntityGroup
+    public class EntityGroup:INotifyPropertyChanged
     {
         public EntityProperties props { get; set; } = new EntityProperties();
         public List<string> brushTexts { get; set; } = new List<string>();
+        public bool moreThanOne => brushTexts.Count > 1;
         public bool merge { get; set; } = false;
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 
     public class TriggerType
