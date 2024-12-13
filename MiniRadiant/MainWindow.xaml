@@ -135,6 +135,11 @@
                     </DockPanel>
                     
                 </TabItem>
+                <TabItem Header="SP" x:Name="spPanel">
+                    <StackPanel>
+                        <CheckBox IsChecked="{Binding spToMpCleanup}" ToolTip="Clean up/delete unsuitable entities when going from SP to MP map in JK2">SP to MP cleanup</CheckBox>
+                    </StackPanel>
+                </TabItem>
             </TabControl>
             
             

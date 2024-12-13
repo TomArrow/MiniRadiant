@@ -294,6 +294,108 @@ namespace MiniRadiant
 
         }
 
+        HashSet<string> spOnlyEnts = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { "func_train", "misc_ns_turret", "misc_panel_turret", "misc_sentry_turret", "misc_turret", "path_corner","point_combat","ref_tag","target_scriptrunner", "target_activate", "target_autosave","target_secret", "target_interest", "target_position", "target_relay", "trigger_location","target_deactivate" };
+        Dictionary<string,string> spMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
+            { "func_static" ,"func_group"},
+            { "func_breakable" ,"func_group"},
+            { "func_usable" ,"func_group"},
+            { "func_door" ,"func_group"},
+        };
+
+        Regex commonwtfregex = new Regex(@"\scommon/WTF\s",RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        Regex commonoriginregex = new Regex(@"\scommon/origin\s",RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private string ProcessSPtoMPCleanup(string mapText)
+        {
+
+            SortedDictionary<string,string> defragCourseDataForSorting = new SortedDictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+
+            Dictionary<EntityGroup, EntityGroupProcessingData> procData = new Dictionary<EntityGroup, EntityGroupProcessingData>();
+
+            StringBuilder endMapSB = new StringBuilder();
+            StringBuilder afterEndMapSB = new StringBuilder();
+
+            mapText = PcreRegex.Replace(mapText,triggersMatchRegex,(entityMatch) => {
+
+                string propertiesText = entityMatch.Groups["properties"].Value;
+                string brushesText = entityMatch.Groups["brushes"].Value;
+
+                EntityProperties props = EntityProperties.FromString(propertiesText);
+
+                bool modded = false;
+
+                commonwtfregex.Replace(brushesText, (a) => { // disgusting way of doing this but oh well!
+                    modded = true;
+                    return "system/caulk"; 
+                });
+                commonoriginregex.Replace(brushesText, (a) => { // disgusting way of doing this but oh well!
+                    modded = true;
+                    return "system/nodraw"; 
+                });
+
+                if (props.ContainsKey("classname"))
+                {
+                    string classname = props["classname"];
+                    if (classname.StartsWith("NPC_", StringComparison.OrdinalIgnoreCase) || classname.StartsWith("waypoint", StringComparison.OrdinalIgnoreCase) || classname.StartsWith("trigger_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!classname.Equals("trigger_hurt", StringComparison.OrdinalIgnoreCase) && !classname.Equals("trigger_push", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                            return "";
+                        }
+                    } else if (classname.StartsWith("misc_model", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (props.ContainsKey("model"))
+                        {
+                            props["old_classname"] = classname;
+                            props["classname"] = classname = "misc_model";
+                            string spawnflagsString = props.ContainsKey("spawnflags") ? props["spawnflags"] : "0";
+                            int spawnflags = 0;
+                            if(!int.TryParse(spawnflagsString,out spawnflags)){
+                                spawnflags = 0;
+                            }
+                            spawnflags |= 2; // clip it
+                            props["spawnflags"] = spawnflags.ToString();
+                            modded = true;
+                        }
+                        else
+                        {
+                            return "";
+                        }
+                    }else if (classname.StartsWith("target_speaker", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!props.ContainsKey("noise"))
+                        {
+                            return "";
+                        }
+                    } else if (spOnlyEnts.Contains(classname))
+                    {
+                        return "";
+                    } else if (spMappings.ContainsKey(classname))
+                    {
+                        props["old_classname"] = classname;
+                        props["classname"] = classname = spMappings[classname];
+                        modded = true;
+                    }
+                }
+
+                if (modded)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("\n{");
+                    sb.Append($"\n{props.ToString()}\n");
+                    sb.Append($"\n{brushesText}\n");
+                    sb.Append("}\n");
+                    return sb.ToString();
+                }
+
+                return entityMatch.Value;
+            });
+
+
+            return mapText;
+
+        }
+
     }
 
 }

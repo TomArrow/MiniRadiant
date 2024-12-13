@@ -115,6 +115,7 @@ namespace MiniRadiant
             new TriggerType { moveToEnd=false, name="trigger_hurt" },
         };
 
+        public bool spToMpCleanup { get; set; } = false;
         public bool sortDefragCourses { get; set; } = false;
         public bool defragFinishTriggerLast { get; set; } = false;
 
@@ -124,6 +125,8 @@ namespace MiniRadiant
             endMoveList.DataContext = this;
             anglesPanel.DataContext = anglesSettings;
             defragCourseSortCheck.DataContext = this;
+            defragFinishTriggerLastCheck.DataContext = this;
+            spPanel.DataContext = this;
         }
 
         Dictionary<Vector3,LightColor> lightColors = new Dictionary<Vector3, LightColor>();
@@ -262,10 +265,14 @@ namespace MiniRadiant
         {
 
             string result = ProcessTriggerChanges(mapFileData);
+            if (spToMpCleanup)
+            {
+                result = ProcessSPtoMPCleanup(result);
+            }
             result = entitiesParseRegex.Replace(result, (Match match) => {
                 if (match.Groups.Count >= 4)
                 {
-                    Dictionary<string, string> entity = new Dictionary<string, string>();
+                    Dictionary<string, string> entity = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
                     int lineCount = match.Groups[2].Captures.Count;
                     for (int c = 0; c < lineCount; c++)
@@ -347,6 +354,7 @@ namespace MiniRadiant
                         }
                         
                     }
+
                 }
                 return match.Value;
             });
