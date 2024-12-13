@@ -323,13 +323,13 @@ namespace MiniRadiant
 
                 bool modded = false;
 
-                commonwtfregex.Replace(brushesText, (a) => { // disgusting way of doing this but oh well!
+                brushesText = commonwtfregex.Replace(brushesText, (a) => { // disgusting way of doing this but oh well!
                     modded = true;
-                    return "system/caulk"; 
+                    return " system/caulk "; 
                 });
-                commonoriginregex.Replace(brushesText, (a) => { // disgusting way of doing this but oh well!
+                brushesText = commonoriginregex.Replace(brushesText, (a) => { // disgusting way of doing this but oh well!
                     modded = true;
-                    return "system/nodraw"; 
+                    return " system/nodraw "; 
                 });
 
                 if (props.ContainsKey("classname"))
